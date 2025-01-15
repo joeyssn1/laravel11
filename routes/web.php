@@ -25,8 +25,17 @@ Route::get('/menu', function () {
 
 
 
-
+// for User Menu
 Route::get('/userMenu', [MenuController::class, 'getMenu'])->name('menu.index');
+Route::post('/menu/order/{id}', [MenuController::class, 'order'])->name('menu.order');
+
+
+Route::get('/menu', [MenuController::class, 'getMenuforPayment'])->name('menu');
+
+// for Add menu
+Route::get('/addMenu', [MenuController::class, 'create'])->name('menu.create');
+Route::post('/addMenu', [MenuController::class, 'store'])->name('menu.store');
+
 
 Route::get('/payment', [PaymentController::class, 'getAllOrderDetail'])->name('payment');
 

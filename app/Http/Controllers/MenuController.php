@@ -33,6 +33,63 @@ class MenuController extends Controller
         // Send menus and categories data to the view
         return view('menuUser', compact('menus', 'categories'));
     }
+    public function create()
+    {
+        return view('addMenu'); // Ensure this matches the name of your Blade file
+    }
+
+    // Handle form submission
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'food_description' => 'required|string',
+            'price' => 'required|numeric',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        Menu::create([
+            'name' => $request->input('name'),
+            'food_description' => $request->input('food_description'),
+            'price' => $request->input('price'),
+            'category_id' => $request->input('category_id'),
+        ]);
+
+        return redirect('/home')->with('success', 'Menu added successfully');
+    }
+
+    public function order(Request $request, $id)
+    {
+        // Ambil tindakan dari tombol
+        $action = $request->input('action');
+        $quantities = session()->get('quantities', []);
+
+        // Jika menu belum ada di sesi, set ke 0
+        if (!isset($quantities[$id])) {
+            $quantities[$id] = 0;
+        }
+
+        // Tangani logika berdasarkan tindakan
+        if ($action === 'order') {
+            $quantities[$id] = 1; // Jika ORDER ditekan, mulai dengan 1
+        } elseif ($action === 'increase') {
+            $quantities[$id]++; // Tambahkan 1 jika tombol + ditekan
+        } elseif ($action === 'decrease') {
+            $quantities[$id]--; // Kurangi 1 jika tombol - ditekan
+        }
+
+        // Jika jumlahnya 0 atau kurang, hapus dari sesi
+        if ($quantities[$id] <= 0) {
+            unset($quantities[$id]);
+        }
+
+        // Simpan kembali jumlah ke sesi
+        session()->put('quantities', $quantities);
+
+        // Redirect ke halaman menu
+        return redirect()->route('menu.index');
+    }
+
 
     public function edit(Request $request, $id)
     {
@@ -47,7 +104,6 @@ class MenuController extends Controller
             $menu->save();
             return response()->json(['message' => 'Menu updated successfully']);
         } else {
-            return response()->json(['message' => 'Menu not found'], 404);
         }
     }
 

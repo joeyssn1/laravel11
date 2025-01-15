@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&family=Italianno&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     @vite('resources/css/app.css')
-    
 
 </head>
 
@@ -19,6 +18,7 @@
     <!-- Header -->
     <x-navigation></x-navigation>
 
+
 <div class="font-antiquity">
     <!-- Title -->
     <div class="text-center mt-20 font-antiquity">
@@ -26,8 +26,8 @@
     </div>
 
     <div class="flex justify-center mt-6">
-        <button class="bg-maroon3 hover:bg-rose-300 text-white px-4 py-2 rounded" onclick="openModal('addMenu')">
-            Add Menu
+        <button class="bg-maroon3 hover:bg-rose-300 text-white px-4 py-2 rounded">
+            <a href="/addMenu">Add Menu</a>
         </button>
     </div>
 
