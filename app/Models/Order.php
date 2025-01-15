@@ -26,7 +26,12 @@ public function orderDetail()
     return $this->hasOne(OrderDetail::class);
 }
 
+public function details()
+{
+    return $this->hasMany(OrderDetail::class);
 }
+}
+
 
 
 // order->order_details->subtotal

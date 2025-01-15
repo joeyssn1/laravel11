@@ -66,13 +66,13 @@
             </div>
 
             <!-- Pay Out Button -->
-            <div class="flex justify-end mt-4">
-                <a href="/paymentmethod">
-                    <button class="bg-maroon3 hover:bg-[#d15b48] text-bone font-bold py-2 px-6 rounded-lg shadow-md">
-                        Pay Out
-                    </button>
-                </a>
-            </div>
+            <form method="POST" action="{{ route('order.store') }}">
+                @csrf
+                <button type="submit" class="bg-maroon3 hover:bg-maroon2 text-white px-6 py-3 rounded text-xl font-bold">
+                    Pay Out
+                </button>
+            </form>
+            
         </div>
     </div>
 </body>

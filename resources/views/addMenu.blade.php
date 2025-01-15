@@ -40,6 +40,7 @@
             <input type="number" id="price" name="price" class="w-full p-3 rounded-md bg-gray-200 focus:ring-2 focus:ring-[#582A22] focus:outline-none" required>
         </div>
         <button type="submit" class="w-full bg-maroon text-white text-lg font-bold py-3 rounded-md hover:bg-[#451f19] transition">Add Menu</button>
+        <a href="{{ route('menu.index') }}" class="block text-center mt-4 text-white text-lg font-bold py-3 rounded-md bg-gray-500 hover:bg-gray-600 transition">Return to Menu</a>
     </form>
 </body>
 </html>

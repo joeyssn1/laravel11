@@ -84,6 +84,7 @@
     </main>
 
     <div class="text-center mt-8">
+        
         <a href="/payment" class="bg-maroon3 hover:bg-maroon2 text-white px-6 py-3 rounded text-xl font-bold">
             Pay Out
         </a>

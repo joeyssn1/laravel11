@@ -91,31 +91,58 @@ class MenuController extends Controller
     }
 
 
-    public function edit(Request $request, $id)
-    {
-        $menu = Menu::find($id);
-        if ($menu) {
-            $menu->name = $request->input('name');
-            $menu->description = $request->input('description');
-            $menu->price = $request->input('price');
-            if ($request->hasFile('image')) {
-                $menu->image = $request->file('image')->store('images', 'public');
-            }
-            $menu->save();
-            return response()->json(['message' => 'Menu updated successfully']);
-        } else {
-        }
+    public function showEditForm($id)
+{
+    $menu = Menu::find($id);
+    $categories = Category::all(); // Retrieve all categories for the dropdown
+
+    if ($menu) {
+        return view('editMenu', compact('menu', 'categories'));
     }
 
-    public function delete($id)
-    {
-        $menu = Menu::find($id);
-        if ($menu) {
-            $menu->delete();
-            return response()->json(['message' => 'Menu deleted successfully']);
-        } else {
-            return response()->json(['message' => 'Menu not found'], 404);
-        }
+    return redirect()->route('menu.index')->with('error', 'Menu not found');
+}
+
+public function edit(Request $request, $id)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'food_description' => 'required|string',
+        'price' => 'required|numeric',
+        'category_id' => 'required|exists:categories,id',
+    ]);
+
+    $menu = Menu::find($id);
+    if ($menu) {
+        $menu->update([
+            'name' => $request->input('name'),
+            'food_description' => $request->input('food_description'),
+            'price' => $request->input('price'),
+            'category_id' => $request->input('category_id'),
+        ]);
+
+        return redirect()->route('menu.index')->with('success', 'Menu updated successfully');
     }
+
+    return redirect()->route('menu.index')->with('error', 'Menu not found');
+}
+public function delete($id)
+{
+    $menu = Menu::find($id);
     
+
+    if ($menu) {
+        // Remove related records in order_details
+        $menu->orderDetails()->delete(); // Assuming you have a relationship defined in the Menu model
+        
+        // Then delete the menu
+        $menu->delete();
+
+        return redirect()->route('menu.index')->with('success', 'Menu deleted successfully');
+    }
+
+    return redirect()->route('menu.index')->with('error', 'Menu not found');
+}
+
+
 }

@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrderController;
+
 
 Route::get('/home', function () {
     return view('home', [
@@ -36,6 +38,9 @@ Route::get('/menu', [MenuController::class, 'getMenuforPayment'])->name('menu');
 Route::get('/addMenu', [MenuController::class, 'create'])->name('menu.create');
 Route::post('/addMenu', [MenuController::class, 'store'])->name('menu.store');
 
+Route::get('/editMenu', [MenuController::class, 'create'])->name('');
+
+
 
 Route::get('/payment', [PaymentController::class, 'getAllOrderDetail'])->name('payment');
 
@@ -51,3 +56,16 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/order', [OrderController::class, 'store'])->name('order.store');
+    Route::get('/order/{id}', [OrderController::class, 'show'])->name('order.show');
+});
+
+// Route for editing a menu
+Route::get('/menu/{id}/edit', [MenuController::class, 'showEditForm'])->name('menu.edit');
+Route::post('/menu/{id}/edit', [MenuController::class, 'edit']);
+
+// Route for deleting a menu
+Route::post('/menu/{id}/delete', [MenuController::class, 'delete'])->name('menu.delete');
+

@@ -19,5 +19,9 @@ class Menu extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
     use HasFactory;
 }
