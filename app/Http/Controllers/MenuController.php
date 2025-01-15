@@ -55,9 +55,10 @@ class MenuController extends Controller
             'category_id' => $request->input('category_id'),
         ]);
 
-        return redirect('/home')->with('success', 'Menu added successfully');
+        return redirect('/menu')->with('success', 'Menu added successfully');
     }
 
+    
     public function order(Request $request, $id)
     {
         // Ambil tindakan dari tombol
@@ -88,8 +89,8 @@ class MenuController extends Controller
 
         // Redirect ke halaman menu
         return redirect()->route('menu.index');
-    }
-
+    
+        ;}
 
     public function showEditForm($id)
 {
@@ -121,10 +122,10 @@ public function edit(Request $request, $id)
             'category_id' => $request->input('category_id'),
         ]);
 
-        return redirect()->route('menu.index')->with('success', 'Menu updated successfully');
+        return redirect()->route('menu')->with('success', 'Menu updated successfully');
     }
 
-    return redirect()->route('menu.index')->with('error', 'Menu not found');
+    return redirect()->route('menu')->with('error', 'Menu not found');
 }
 public function delete($id)
 {
@@ -138,11 +139,10 @@ public function delete($id)
         // Then delete the menu
         $menu->delete();
 
-        return redirect()->route('menu.index')->with('success', 'Menu deleted successfully');
+        return redirect()->route('menu')->with('error', 'Menu not found');
     }
 
-    return redirect()->route('menu.index')->with('error', 'Menu not found');
+    return redirect()->route('menu')->with('error', 'Menu not found');
 }
-
 
 }

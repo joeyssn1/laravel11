@@ -40,8 +40,8 @@
                     <tbody class="text-bone">
                         @foreach ($orders as $index => $order)
                             <tr>
-                                <td class="p-2 border-collapse border-2">{{ $order->user->username }}</td>
                                 <td class="p-2 border-collapse border-2">{{ $order->user->id }}</td>
+                                <td class="p-2 border-collapse border-2">{{ $order->user->username }}</td>
                                 <td class="p-2 border-collapse border-2">
                                     {{ $order->orderDetail ? number_format($order->orderDetail->sum('subtotal'), 0, ',', '.') : 'N/A' }}
                                 <td class="p-2 border-collapse border-2">{{ $order->status }}</td>

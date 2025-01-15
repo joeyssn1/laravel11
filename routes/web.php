@@ -38,8 +38,6 @@ Route::get('/menu', [MenuController::class, 'getMenuforPayment'])->name('menu');
 Route::get('/addMenu', [MenuController::class, 'create'])->name('menu.create');
 Route::post('/addMenu', [MenuController::class, 'store'])->name('menu.store');
 
-Route::get('/editMenu', [MenuController::class, 'create'])->name('');
-
 
 
 Route::get('/payment', [PaymentController::class, 'getAllOrderDetail'])->name('payment');

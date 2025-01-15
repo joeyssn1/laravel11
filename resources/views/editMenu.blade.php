@@ -10,8 +10,7 @@
         rel="stylesheet">
     @vite('resources/css/app.css')
 </head>
-<body>
-    <x-navigation></x-navigation>
+<body class="bg-maroon flex items-center justify-center min-h-screen font-serif">
 
     @if(session('success'))
         <p class="text-white text-lg mb-4">{{ session('success') }}</p>
@@ -45,9 +44,6 @@
         <button type="submit" class="w-full bg-maroon text-white text-lg font-bold py-3 rounded-md hover:bg-[#451f19] transition">Save Changes</button>
     </form>
 
-    <form action="{{ route('menu.delete', $menu->id) }}" method="POST" class="mt-4">
-        @csrf
-        <button type="submit" class="w-full bg-red-600 text-white text-lg font-bold py-3 rounded-md hover:bg-red-700 transition">Delete Menu</button>
-    </form>
+  
 </body>
 </html>
