@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use App\Models\Category; // Import the Category model
 use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\OrderDetail;
+use Illuminate\Support\Facades\Auth;
 
 class MenuController extends Controller
 {
@@ -52,105 +55,98 @@ class MenuController extends Controller
     
     public function order(Request $request, $id)
     {
-        // Ambil tindakan dari tombol
         $action = $request->input('action');
         $quantities = session()->get('quantities', []);
 
-        // Jika menu belum ada di sesi, set ke 0
         if (!isset($quantities[$id])) {
             $quantities[$id] = 0;
         }
 
-        // Tangani logika berdasarkan tindakan
-        if ($action === 'order') {
-            $quantities[$id] = 1; // Jika ORDER ditekan, mulai dengan 1
-        } elseif ($action === 'increase') {
-            $quantities[$id]++; // Tambahkan 1 jika tombol + ditekan
-        } elseif ($action === 'decrease') {
-            $quantities[$id]--; // Kurangi 1 jika tombol - ditekan
+        if ($action === 'increase') {
+            $quantities[$id]++;
+        } elseif ($action === 'decrease' && $quantities[$id] > 0) {
+            $quantities[$id]--;
         }
 
-        // Jika jumlahnya 0 atau kurang, hapus dari sesi
+        // Remove item if quantity is 0
         if ($quantities[$id] <= 0) {
             unset($quantities[$id]);
         }
 
-        // Simpan kembali jumlah ke sesi
         session()->put('quantities', $quantities);
 
-        // Redirect ke halaman menu
-        return redirect()->route('menu.index');
-    
-        ;}
+        return response()->json(['quantity' => $quantities[$id] ?? 0]);
+    }
 
     public function showEditForm($id)
-{
-    $menu = Menu::find($id);
-    $categories = Category::all(); // Retrieve all categories for the dropdown
+    {
+        $menu = Menu::find($id);
+        $categories = Category::all(); // Retrieve all categories for the dropdown
 
-    if ($menu) {
-        return view('editMenu', compact('menu', 'categories'));
+        if ($menu) {
+            return view('editMenu', compact('menu', 'categories'));
+        }
+
+        return redirect()->route('menu.index')->with('error', 'Menu not found');
     }
 
-    return redirect()->route('menu.index')->with('error', 'Menu not found');
-}
-
-public function edit(Request $request, $id)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'food_description' => 'required|string',
-        'price' => 'required|numeric',
-        'category_id' => 'required|exists:categories,id',
-    ]);
-
-    $menu = Menu::find($id);
-    if ($menu) {
-        $menu->update([
-            'name' => $request->input('name'),
-            'food_description' => $request->input('food_description'),
-            'price' => $request->input('price'),
-            'category_id' => $request->input('category_id'),
+    public function edit(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'food_description' => 'required|string',
+            'price' => 'required|numeric',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
-        return redirect()->route('menu')->with('success', 'Menu updated successfully');
-    }
+        $menu = Menu::find($id);
+        if ($menu) {
+            $menu->update([
+                'name' => $request->input('name'),
+                'food_description' => $request->input('food_description'),
+                'price' => $request->input('price'),
+                'category_id' => $request->input('category_id'),
+            ]);
 
-    return redirect()->route('menu')->with('error', 'Menu not found');
-}
-public function delete($id)
-{
-    $menu = Menu::find($id);
-    
-
-    if ($menu) {
-        // Remove related records in order_details
-        $menu->orderDetails()->delete(); // Assuming you have a relationship defined in the Menu model
-        
-        // Then delete the menu
-        $menu->delete();
+            return redirect()->route('menu')->with('success', 'Menu updated successfully');
+        }
 
         return redirect()->route('menu')->with('error', 'Menu not found');
     }
 
-    return redirect()->route('menu')->with('error', 'Menu not found');
-}
+    public function delete($id)
+    {
+        $menu = Menu::find($id);
+        
 
-// menu user button add to cart
-public function index()
-{
-    // Retrieve all menus and categories
-    $menus = \App\Models\Menu::all();
-    $categories = \App\Models\Category::all();
+        if ($menu) {
+            // Remove related records in order_details
+            $menu->orderDetails()->delete(); // Assuming you have a relationship defined in the Menu model
+            
+            // Then delete the menu
+            $menu->delete();
 
-    // Get current quantities from the session
-    $quantities = session()->get('quantities', []);
+            return redirect()->route('menu')->with('error', 'Menu not found');
+        }
 
-    return view('menu.index', compact('menus', 'categories', 'quantities'));
-}
+        return redirect()->route('menu')->with('error', 'Menu not found');
+    }
 
-// Handle the increase or decrease of menu quantity
-public function updateQuantity(Request $request, $id)
+    // menu user button add to cart
+    public function index()
+    {
+        // Retrieve all menus and categories
+        $menus = \App\Models\Menu::all();
+        $categories = \App\Models\Category::all();
+
+        // Get current quantities from the session
+        $quantities = session()->get('quantities', []);
+
+        return view('menu.index', compact('menus', 'categories', 'quantities'));
+    }
+
+    // Handle the increase or decrease of menu quantity
+    public function updateQuantity(Request $request, $id)
     {
         $action = $request->input('action');
         $quantities = session()->get('quantities', []);
@@ -170,4 +166,40 @@ public function updateQuantity(Request $request, $id)
         return response()->json(['quantity' => $quantities[$id] ?? 0]);
     }
 
+    // Add this new method to handle adding to cart
+    public function addToCart()
+    {
+        $quantities = session()->get('quantities', []);
+        
+        // If cart is empty, redirect back with message
+        if (empty($quantities)) {
+            return redirect()->back()->with('error', 'Please select items before adding to cart');
+        }
+
+        // Create new order
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'status' => 'unpaid'
+        ]);
+
+        // Add items to order_details
+        foreach ($quantities as $menuId => $quantity) {
+            if ($quantity > 0) {
+                $menu = Menu::find($menuId);
+                if ($menu) {
+                    OrderDetail::create([
+                        'order_id' => $order->id,
+                        'menu_id' => $menuId,
+                        'quantity' => $quantity,
+                        'subtotal' => $menu->price * $quantity
+                    ]);
+                }
+            }
+        }
+
+        // Clear the cart
+        session()->forget('quantities');
+
+        return redirect()->route('payment');
+    }
 }

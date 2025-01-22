@@ -88,10 +88,22 @@
     </main>
 
     <div class="text-center mt-8">
-        <a href="/payment" class="bg-maroon3 hover:bg-maroon2 text-white px-6 py-3 rounded text-xl font-bold">
-            Add to Cart
-        </a>
+        <form action="{{ route('menu.addToCart') }}" method="POST">
+            @csrf
+            <button type="submit" class="bg-maroon3 hover:bg-maroon2 text-white px-6 py-3 rounded text-xl font-bold">
+                Add to Cart
+            </button>
+        </form>
     </div>
+
+    <!-- Add error message display -->
+    @if(session('error'))
+        <div class="text-center mt-4">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        </div>
+    @endif
 
     <!-- JavaScript -->
       <script>

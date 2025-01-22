@@ -67,4 +67,7 @@ Route::post('/menu/{id}/edit', [MenuController::class, 'edit']);
 // Route for deleting a menu
 Route::post('/menu/{id}/delete', [MenuController::class, 'delete'])->name('menu.delete');
 
+// Add this with your other menu routes
+Route::post('/menu/add-to-cart', [MenuController::class, 'addToCart'])->name('menu.addToCart');
+
 
