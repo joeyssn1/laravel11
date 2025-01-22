@@ -14,25 +14,15 @@ class MenuController extends Controller
         return view('menu', compact('menus')); // Pass the $menus variable to the view
     }
 
-    public function getMenu(Request $request)
+    public function getMenu()
     {
-        // Get the selected category from the query string (default to 'all' if not provided)
-        $category = $request->input('category', 'all');
+        $categories = Category::all();  // Assuming you have a Category model
+        $menus = Menu::all();
+        $quantities = session()->get('quantities', []);
 
-        if ($category !== 'all') {
-            // Filter menus by category if a specific category is selected
-            $menus = Menu::where('category_id', $category)->get();
-        } else {
-            // Retrieve all menus if 'all' is selected
-            $menus = Menu::all();
-        }
-
-        // Retrieve all categories for display
-        $categories = Category::all();
-
-        // Send menus and categories data to the view
-        return view('menuUser', compact('menus', 'categories'));
+        return view('menuUser', compact('categories', 'menus', 'quantities'));
     }
+
     public function create()
     {
         return view('addMenu'); // Ensure this matches the name of your Blade file
@@ -47,6 +37,7 @@ class MenuController extends Controller
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
         ]);
+
 
         Menu::create([
             'name' => $request->input('name'),
@@ -144,5 +135,39 @@ public function delete($id)
 
     return redirect()->route('menu')->with('error', 'Menu not found');
 }
+
+// menu user button add to cart
+public function index()
+{
+    // Retrieve all menus and categories
+    $menus = \App\Models\Menu::all();
+    $categories = \App\Models\Category::all();
+
+    // Get current quantities from the session
+    $quantities = session()->get('quantities', []);
+
+    return view('menu.index', compact('menus', 'categories', 'quantities'));
+}
+
+// Handle the increase or decrease of menu quantity
+public function updateQuantity(Request $request, $id)
+    {
+        $action = $request->input('action');
+        $quantities = session()->get('quantities', []);
+
+        if ($action == 'increase') {
+            $quantities[$id] = isset($quantities[$id]) ? $quantities[$id] + 1 : 1;
+        } elseif ($action == 'decrease') {
+            if (isset($quantities[$id]) && $quantities[$id] > 0) {
+                $quantities[$id]--;
+            }
+        }
+
+        // Save the updated quantities to the session
+        session()->put('quantities', $quantities);
+
+        // Return updated quantity as JSON response
+        return response()->json(['quantity' => $quantities[$id] ?? 0]);
+    }
 
 }

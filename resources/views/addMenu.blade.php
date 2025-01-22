@@ -14,9 +14,9 @@
 <body class="bg-maroon flex items-center justify-center min-h-screen font-serif">
 
     @if(session('success'))
-        <p class="text-white text-lg mb-4">{{ session('success') }}</p>
+        <p class="text-white text-lg mb-4">{{ session('sucess') }}</p>
     @endif
-    <form action="{{ route('menu.create') }}" method="POST" enctype="multipart/form-data" class="bg-maroon3 p-6 rounded-lg shadow-lg w-full max-w-sm">
+    <form action="{{ route('menu.store') }}" method="POST" enctype="multipart/form-data" class="bg-maroon3 p-6 rounded-lg shadow-lg w-full max-w-sm">
         @csrf
         <div class="mb-4">
             <label for="name" class="block text-lg font-bold mb-2">Menu Name:</label>
@@ -39,8 +39,9 @@
             <label for="price" class="block text-lg font-bold mb-2">Price:</label>
             <input type="number" id="price" name="price" class="w-full p-3 rounded-md bg-gray-200 focus:ring-2 focus:ring-[#582A22] focus:outline-none" required>
         </div>
+        
         <button type="submit" class="w-full bg-maroon text-white text-lg font-bold py-3 rounded-md hover:bg-[#451f19] transition">Add Menu</button>
-        <a href="{{ route('menu.index') }}" class="block text-center mt-4 text-white text-lg font-bold py-3 rounded-md bg-gray-500 hover:bg-gray-600 transition">Return to Menu</a>
+        <a href="{{ route('menu') }}" class="block text-center mt-4 text-white text-lg font-bold py-3 rounded-md bg-gray-500 hover:bg-gray-600 transition">Return to Menu</a>
     </form>
 </body>
 </html>

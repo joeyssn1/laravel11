@@ -13,11 +13,16 @@ class PaymentController extends Controller
 
     public function getAllOrderDetail()
     {
-        $menus = Menu::all();
-        $order_details = OrderDetail::all();
+        $order = Order::where('user_id', Auth::id())->first(); // Get the order for the authenticated use
+    
+        // Get the order details for the specific order
+        $order_details = OrderDetail::where('order_id', $order->id)->get();
+    
         $pagetitle = "Total Payment";
-        return view('payment', compact('order_details', 'menus', 'pagetitle'));
+    
+        return view('payment', compact('order_details', 'pagetitle', 'order'));
     }
+    
 
     public function getPaymentStatus()
     {

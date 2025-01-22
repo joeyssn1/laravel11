@@ -38,6 +38,7 @@
                     </thead>
                     <!-- Table Body -->
                     <tbody class="text-white">
+
                         @foreach ($order_details as $index => $order)
                             @php
                                 $bg = $index % 2 === 0 ? 'bg-transparent' : 'bg-transparent';
@@ -58,20 +59,18 @@
                         <tr class="bg-maroon">
                             <td colspan="3" class="px-4 py-3 text-right font-bold">TOTAL PAYMENT:</td>
                             <td class="px-4 py-3 font-bold text-lg">
-                                Rp {{ number_format($order->sum('subtotal'), 0, ',', '.') }}
+                                Rp {{ number_format($order_details->sum('subtotal'), 0, ',', '.') }}
                             </td>
                         </tr>
                     </tfoot>
+                    
                 </table>
             </div>
 
             <!-- Pay Out Button -->
-            <form method="POST" action="{{ route('order.store') }}">
-                @csrf
-                <button type="submit" class="bg-maroon3 hover:bg-maroon2 text-white px-6 py-3 rounded text-xl font-bold">
-                    Pay Out
-                </button>
-            </form>
+            <a href="{{ route('paymentMethod') }}" class="bg-maroon3 hover:bg-maroon2 text-white px-6 py-3 rounded text-xl font-bold">
+                Pay Out
+            </a>
             
         </div>
     </div>

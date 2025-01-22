@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     @vite('resources/css/app.css')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body class="bg-maroon text-white font-sans">
@@ -22,10 +23,8 @@
         
         <!-- Links Section -->
         <div class="mt-8 space-x-8">
-            <!-- Link Category -->
             <a href="{{ route('menu.index', ['category' => 'all']) }}" class="text-bone hover:text-maroon3 text-xl">All</a>
 
-                <!-- Soo This for every Category will be Repeat till nothing left using Foreach -->
             @foreach ($categories as $category)
                 <a href="{{ route('menu.index', ['category' => $category->id]) }}" class="text-bone hover:text-maroon3 text-xl">
                     {{ $category->name }}
@@ -45,51 +44,93 @@
             </thead>
             <tbody>
                 @foreach ($menus as $menu)
-                    <tr>
-                        <td class="p-2 border text-bone text-center">ID: {{ $menu->id }}</td>
-                        <td class="p-2 border text-bone">
-                            <div class="flex items-center space-x-4">
-                                <img src="{{ $menu->image }}" alt="{{ $menu->name }}" class="w-24 h-24 object-cover rounded-lg">
-                                <div class="flex-1">
-                                    <h3 class="text-xl font-semibold">{{ $menu->name }}</h3>
-                                    <p class="text-sm mt-2">{{ $menu->food_description }}</p>
-                                    <div class="flex items-center justify-end space-x-4 mt-4 w-full">
-                                        <span class="text-lg font-bold">Rp {{ number_format($menu->price, 0, ',', '.') }}</span>
-                                        <form method="POST" action="{{ route('menu.order', ['id' => $menu->id]) }}">
-                                            @csrf
-                                            @if (isset($quantities[$menu->id]) && $quantities[$menu->id] > 0)
-                                                <div class="flex items-center space-x-2">
-                                                    <button type="submit" name="action" value="decrease"
-                                                        class="bg-gray-500 hover:bg-gray-400 text-white px-3 py-1 rounded">-</button>
-                                                    <span class="text-lg font-bold">{{ $quantities[$menu->id] }}</span>
-                                                    <button type="submit" name="action" value="increase"
-                                                        class="bg-gray-500 hover:bg-gray-400 text-white px-3 py-1 rounded">+</button>
-                                                </div>
-                                            @else
-                                                <button type="submit" name="action" value="order"
-                                                    class="bg-maroon3 hover:bg-maroon2 text-white px-4 py-2 rounded">
-                                                    ORDER
-                                                </button>
-                                            @endif
-                                        </form>
-                                    </div>
+                <tr>
+                    <td class="p-2 border text-bone text-center">ID: {{ $menu->id }}</td>
+                    <td class="p-2 border text-bone">
+                        <div class="flex items-center space-x-4">
+                            <img src="{{ $menu->image }}" alt="{{ $menu->name }}" class="w-24 h-24 object-cover rounded-lg">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-semibold">{{ $menu->name }}</h3>
+                                <p class="text-sm mt-2">{{ $menu->food_description }}</p>
+                                <div class="flex items-center justify-end space-x-4 mt-4 w-full">
+                                    <span class="text-lg font-bold">Rp {{ number_format($menu->price, 0, ',', '.') }}</span>
+                                    <form method="POST" action="{{ route('menu.order', ['id' => $menu->id]) }}" class="quantity-form">
+                                        @csrf
+                                        <div class="flex items-center space-x-2">
+                                            <!-- Decrease Button -->
+                                            <button type="button" class="bg-gray-500 hover:bg-gray-400 text-white px-3 py-1 rounded decrease-btn"
+                                                @if (!isset($quantities[$menu->id]) || $quantities[$menu->id] <= 0) disabled @endif>
+                                                -
+                                            </button>
+                
+                                            <!-- Quantity Display -->
+                                            <span class="text-lg font-bold quantity-display">
+                                                {{ $quantities[$menu->id] ?? 0 }}
+                                            </span>
+                
+                                            <!-- Increase Button -->
+                                            <button type="button" class="bg-gray-500 hover:bg-gray-400 text-white px-3 py-1 rounded increase-btn">
+                                                +
+                                            </button>
+                
+                                    
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
+                        </div>
+                    </td>
+                </tr>
                 @endforeach
+                
             </tbody>
-            
         </table>
     </main>
 
     <div class="text-center mt-8">
-        
         <a href="/payment" class="bg-maroon3 hover:bg-maroon2 text-white px-6 py-3 rounded text-xl font-bold">
-            Pay Out
+            Add to Cart
         </a>
     </div>
-    
+
+    <!-- JavaScript -->
+      <script>
+    document.querySelectorAll('.quantity-form').forEach(form => {
+        const id = form.dataset.id;
+        const decreaseBtn = form.querySelector('.decrease-btn');
+        const increaseBtn = form.querySelector('.increase-btn');
+        const quantityDisplay = form.querySelector('.quantity-display');
+
+        const updateQuantity = async (action) => {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: action })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                quantityDisplay.textContent = data.quantity;
+
+                // Enable/Disable buttons based on quantity
+                decreaseBtn.disabled = data.quantity <= 0;
+                increaseBtn.disabled = false;
+            } else {
+                console.error('Failed to update quantity');
+            }
+        };
+
+        decreaseBtn.addEventListener('click', () => updateQuantity('decrease'));
+        increaseBtn.addEventListener('click', () => updateQuantity('increase'));
+    });
+</script>
+
+
 </body>
 
 </html>

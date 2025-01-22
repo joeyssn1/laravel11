@@ -30,6 +30,7 @@ Route::get('/menu', function () {
 // for User Menu
 Route::get('/userMenu', [MenuController::class, 'getMenu'])->name('menu.index');
 Route::post('/menu/order/{id}', [MenuController::class, 'order'])->name('menu.order');
+Route::post('/menu/order/{id}', [MenuController::class, 'updateQuantity'])->name('menu.order');
 
 
 Route::get('/menu', [MenuController::class, 'getMenuforPayment'])->name('menu');
@@ -38,10 +39,9 @@ Route::get('/menu', [MenuController::class, 'getMenuforPayment'])->name('menu');
 Route::get('/addMenu', [MenuController::class, 'create'])->name('menu.create');
 Route::post('/addMenu', [MenuController::class, 'store'])->name('menu.store');
 
-
-
+// for Payment
 Route::get('/payment', [PaymentController::class, 'getAllOrderDetail'])->name('payment');
-
+Route::post('/payment', [PaymentController::class, 'getAllOrderDetail'])->name('payment');
 
 Route::get('/paymentmethod',[PaymentController::class, 'getPaymentMethod'])->name('paymentMethod');
 
@@ -66,4 +66,5 @@ Route::post('/menu/{id}/edit', [MenuController::class, 'edit']);
 
 // Route for deleting a menu
 Route::post('/menu/{id}/delete', [MenuController::class, 'delete'])->name('menu.delete');
+
 
